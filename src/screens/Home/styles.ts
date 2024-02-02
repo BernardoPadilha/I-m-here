@@ -54,4 +54,10 @@ export const styles = StyleSheet.create({
     gap: 10,
     justifyContent: "flex-start",
   },
+
+  listEmptyText: {
+    color: "#FFF",
+    fontSize: 14,
+    textAlign: "center",
+  },
 });

@@ -1,16 +1,44 @@
 import { StatusBar } from "expo-status-bar";
-import { Text, TextInput, TouchableOpacity, View } from "react-native";
+import {
+  Alert,
+  FlatList,
+  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { styles } from "./styles";
 import { Participant } from "./components/Participant";
-import { format } from "date-fns";
+import { useState } from "react";
 
 export default function Home() {
+  const [participants, setParticipants] = useState<string[]>(["Pricila"]);
+  const [currentParticipant, setCurrentParticipant] = useState("");
+
   function handleParticipantAdd() {
-    console.log("clicou");
+    if (participants.includes(currentParticipant)) {
+      return Alert.alert("Participante já existe!");
+    }
+
+    setParticipants((prevState) => [...prevState, currentParticipant]);
+    setCurrentParticipant("");
   }
 
   function handleParticipantRemove(name: string) {
-    console.log(`Removeu o ${name}`);
+    Alert.alert("Remover", `Reomover o participante ${name}`, [
+      {
+        text: "Sim",
+        onPress: () =>
+          setParticipants((prevState) =>
+            prevState.filter((participant) => participant !== name)
+          ),
+      },
+      {
+        text: "Não",
+        style: "cancel",
+      },
+    ]);
   }
 
   return (
@@ -22,6 +50,8 @@ export default function Home() {
           style={styles.input}
           placeholder="Nome do participante"
           placeholderTextColor="#6b6b6b"
+          value={currentParticipant}
+          onChangeText={(text) => setCurrentParticipant(text)}
         />
 
         <TouchableOpacity style={styles.button} onPress={handleParticipantAdd}>
@@ -29,23 +59,24 @@ export default function Home() {
         </TouchableOpacity>
       </View>
 
-      <Participant
-        key={1}
-        name="Bernardo Padilha"
-        onRemove={() => handleParticipantRemove}
+      <FlatList
+        data={participants}
+        keyExtractor={(item) => item}
+        renderItem={({ item }) => (
+          <Participant
+            key={item}
+            name={item}
+            onRemove={() => handleParticipantRemove(item)}
+          />
+        )}
+        showsVerticalScrollIndicator={false}
+        ListEmptyComponent={() => (
+          <Text style={styles.listEmptyText}>
+            Ninguém chegou no evento ainda? Adicione participantes a sua lista
+            de presença.
+          </Text>
+        )}
       />
-      <Participant
-        key={2}
-        name="Rafael Pereira"
-        onRemove={() => handleParticipantRemove}
-      />
-      <Participant
-        key={3}
-        name="Ana Clara Freitas "
-        onRemove={() => handleParticipantRemove}
-      />
-
-      <StatusBar style="auto" />
     </View>
   );
 }
